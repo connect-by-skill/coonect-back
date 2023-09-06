@@ -1,6 +1,7 @@
 package com.example.connectback.domain.member.entity;
 
 
+import com.example.connectback.domain.jobs.entity.JobAnnouncement;
 import lombok.*;
 
 import javax.persistence.*;
@@ -46,7 +47,13 @@ public class MemberEntity {
     @Enumerated(value = EnumType.STRING)
     private Disability disabilityType;
 
-
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "member_wishlist",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "job_announcement_id")
+    )
+    private Set<JobAnnouncement> wishlist = new HashSet<>();
 
     @Builder
     public MemberEntity(@NonNull String username, @NonNull int age, @NonNull String email, @NonNull String encryptedPwd, @NonNull String addressInfo, @NonNull String addressDetails, @NonNull Disability disabilityType) {
@@ -59,5 +66,13 @@ public class MemberEntity {
         this.disabilityType = disabilityType;
     }
 
+    public void addToWishlist(JobAnnouncement jobAnnouncement) {
+        wishlist.add(jobAnnouncement);
+        jobAnnouncement.getMembers().add(this);
+    }
 
+    public void removeFromWishlist(JobAnnouncement jobAnnouncement) {
+        wishlist.remove(jobAnnouncement);
+        jobAnnouncement.getMembers().remove(this);
+    }
 }
