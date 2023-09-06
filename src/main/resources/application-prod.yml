@@ -1,0 +1,20 @@
+
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://database:3306/connect?characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: qwer1234
