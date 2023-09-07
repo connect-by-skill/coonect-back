@@ -19,7 +19,6 @@ public class JobAnnouncementApiWriter implements ItemWriter<JobAnnouncement> {
     @Override
     @Transactional
     public void write(List<? extends JobAnnouncement> list) throws Exception {
-        jobAnnouncementRepository.deleteAll();
 
         List<JobAnnouncement> jobAnnoucements = new ArrayList<>();
 

@@ -15,7 +15,6 @@ public class HealthCenterApiWriter implements ItemWriter<HealthCenterInfo> {
 
     @Override
     public void write(List<? extends HealthCenterInfo> list) throws Exception {
-        healthCenterInfoRepository.deleteAll();
         List<HealthCenterInfo> healthCenterInfos = new ArrayList<>();
 
         // dto -> entity

@@ -13,7 +13,6 @@ public class HighPercentAccidentWorkplaceApiWriter implements ItemWriter<HighPer
     private final HighPercentAccidentWorkplaceRepository highPercentAccidentWorkplaceRepository;
     @Override
     public void write(List<? extends HighPercentAccidentWorkplace> list) throws Exception {
-        highPercentAccidentWorkplaceRepository.deleteAll();
         List<HighPercentAccidentWorkplace> highPercentAccidentWorkplaces = new ArrayList<>();
 
         // dto -> entity

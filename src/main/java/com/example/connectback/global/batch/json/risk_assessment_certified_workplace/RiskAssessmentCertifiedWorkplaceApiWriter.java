@@ -14,7 +14,6 @@ public class RiskAssessmentCertifiedWorkplaceApiWriter implements ItemWriter<Ris
 
     @Override
     public void write(List<? extends RiskAssessmentCertifiedWorkplace> list) throws Exception {
-        riskAssessmentCertifiedWorkplaceRepository.deleteAll();
         List<RiskAssessmentCertifiedWorkplace> riskAssessmentCertifiedWorkplaces = new ArrayList<>();
 
         // dto -> entity

@@ -3,22 +3,28 @@ package com.example.connectback.global.batch;
 import com.example.connectback.domain.jobs.entity.JobAnnouncement;
 import com.example.connectback.global.batch.json.accident_workplace.AccidentWorkplace;
 import com.example.connectback.global.batch.json.accident_workplace.AccidentWorkplaceApiWriter;
+import com.example.connectback.global.batch.json.accident_workplace.AccidentWorkplaceDeleteTasklet;
 import com.example.connectback.global.batch.json.barrier_free_certified_workplace.BarrierFreeCertifiedWorkplace;
 import com.example.connectback.global.batch.json.barrier_free_certified_workplace.BarrierFreeCertifiedWorkplaceApiWriter;
+import com.example.connectback.global.batch.json.barrier_free_certified_workplace.BarrierFreeCertifiedWorkplaceDeleteTasklet;
 import com.example.connectback.global.batch.json.employment_information.EmploymentInformation;
 import com.example.connectback.global.batch.json.employment_information.EmploymentInformationApiWriter;
+import com.example.connectback.global.batch.json.employment_information.EmploymentInformationDeleteTasklet;
 import com.example.connectback.global.batch.json.health_center.HealthCenterApiWriter;
 import com.example.connectback.global.batch.json.health_center.HealthCenterInfo;
+import com.example.connectback.global.batch.json.health_center.HealthCenterInfoDeleteTasklet;
 import com.example.connectback.global.batch.json.high_percent_accident_workplace.HighPercentAccidentWorkplace;
 import com.example.connectback.global.batch.json.high_percent_accident_workplace.HighPercentAccidentWorkplaceApiWriter;
+import com.example.connectback.global.batch.json.high_percent_accident_workplace.HighPercentAccidentWorkplaceDeleteTasklet;
 import com.example.connectback.global.batch.json.job_annoucement.JobAnnouncementApiWriter;
+import com.example.connectback.global.batch.json.job_annoucement.JobAnnouncementDeleteTasklet;
 import com.example.connectback.global.batch.json.risk_assessment_certified_workplace.RiskAssessmentCertifiedWorkplace;
 import com.example.connectback.global.batch.json.risk_assessment_certified_workplace.RiskAssessmentCertifiedWorkplaceApiWriter;
+import com.example.connectback.global.batch.json.risk_assessment_certified_workplace.RiskAssessmentCertifiedWorkplaceDeleteTasklet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.context.annotation.Bean;
@@ -40,30 +46,37 @@ public class FileItemReaderJobConfig {
     // job 재실행을 위한 도구
     private final BatchJobLauncher batchJobLauncher;
 
-    // 발전소 정보
+    // 공고 정보
     private final JobAnnouncementApiWriter jobAnnouncementApiWriter;
+    private final JobAnnouncementDeleteTasklet jobAnnouncementDeleteTasklet;
 
     private static final int chunkSize = 1000;
     // 건강센터 정보
     private final HealthCenterApiWriter healthCenterApiWriter;
+    private final HealthCenterInfoDeleteTasklet healthCenterInfoDeleteTasklet;
     // 위험성평가 인정사업장 정보
     private final RiskAssessmentCertifiedWorkplaceApiWriter riskAssessmentCertifiedWorkplaceApiWriter;
+    private final RiskAssessmentCertifiedWorkplaceDeleteTasklet riskAssessmentCertifiedWorkplaceDeleteTasklet;
 
     // 배리어프리 인증사업장 정보
     private final BarrierFreeCertifiedWorkplaceApiWriter barrierFreeCertifiedWorkplaceApiWriter;
+    private final BarrierFreeCertifiedWorkplaceDeleteTasklet barrierFreeCertifiedWorkplaceDeleteTasklet;
 
     // 산업재해 중대산업사고 발생 사업장
     private final AccidentWorkplaceApiWriter accidentWorkplaceApiWriter;
+    private final AccidentWorkplaceDeleteTasklet accidentWorkplaceDeleteTasklet;
 
     // 중대재해 발생이 규모별 동종업종 평균재해율 이상인 사업장
     private final HighPercentAccidentWorkplaceApiWriter highPercentAccidentWorkplaceApiWriter;
+    private final HighPercentAccidentWorkplaceDeleteTasklet highPercentAccidentWorkplaceDeleteTasklet;
 
     // 장애인 고용정보
     private final EmploymentInformationApiWriter employmentInformationApiWriter;
+    private final EmploymentInformationDeleteTasklet employmentInformationDeleteTasklet;
 
-    @Scheduled(fixedRate = 3888000000L) // 약 45일(3,888,000,000 밀리초)마다 실행
-    public void scheduleJob() throws Exception {
-        // 배치 잡을 스케줄링하기 위한 메서드
+    @Scheduled(fixedDelay = 3456000000L) // 40일(밀리초 단위) 40 * 24 * 60 * 60 * 1000
+    public void runJob() throws Exception {
+        // Job 실행. 실행한 시간을 파라미터로 하여 언제 발생한 job인지 확인 가능
         batchJobLauncher.run(jobAnnouncementApiFileItemReaderJob());
         batchJobLauncher.run(healthCenterApiReaderJob());
         batchJobLauncher.run(riskAssessmentCertifiedWorkplaceApiReaderJob());
@@ -76,7 +89,15 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job jobAnnouncementApiFileItemReaderJob() throws URISyntaxException, JsonProcessingException {
         return jobBuilderFactory.get("jobAnnouncementApiReaderJob")
-                .start(jobAnnouncementApiFileItemReaderStep())
+                .start(jobAnnouncementDeleteStep())
+                .next(jobAnnouncementApiFileItemReaderStep())
+                .build();
+    }
+
+    @Bean
+    public Step jobAnnouncementDeleteStep() {
+        return stepBuilderFactory.get("jobAnnouncementDeleteStep")
+                .tasklet(jobAnnouncementDeleteTasklet)
                 .build();
     }
 
@@ -92,7 +113,14 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job healthCenterApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("healthCenterApiReaderJob")
-                .start(healthCenterApiReaderStep())
+                .start(healthCenterInfoDeleteStep())
+                .next(healthCenterApiReaderStep())
+                .build();
+    }
+    @Bean
+    public Step healthCenterInfoDeleteStep() {
+        return stepBuilderFactory.get("healthCenterInfoDeleteStep")
+                .tasklet(healthCenterInfoDeleteTasklet)
                 .build();
     }
 
@@ -108,7 +136,14 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job riskAssessmentCertifiedWorkplaceApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("riskAssessmentCertifiedWorkplaceApiReaderJob")
-                .start(riskAssessmentCertifiedWorkplaceApiReaderStep())
+                .start(riskAssessmentCertifiedWorkplaceDeleteStep())
+                .next(riskAssessmentCertifiedWorkplaceApiReaderStep())
+                .build();
+    }
+    @Bean
+    public Step riskAssessmentCertifiedWorkplaceDeleteStep() {
+        return stepBuilderFactory.get("riskAssessmentCertifiedWorkplaceDeleteStep")
+                .tasklet(riskAssessmentCertifiedWorkplaceDeleteTasklet)
                 .build();
     }
 
@@ -124,7 +159,14 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job barrierFreeCertifiedWorkplaceApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("barrierFreeCertifiedWorkplaceApiReaderJob")
-                .start(barrierFreeCertifiedWorkplaceApiReaderStep())
+                .start(barrierFreeCertifiedWorkplaceDeleteStep())
+                .next(barrierFreeCertifiedWorkplaceApiReaderStep())
+                .build();
+    }
+    @Bean
+    public Step barrierFreeCertifiedWorkplaceDeleteStep() {
+        return stepBuilderFactory.get("barrierFreeCertifiedWorkplaceDeleteStep")
+                .tasklet(barrierFreeCertifiedWorkplaceDeleteTasklet)
                 .build();
     }
 
@@ -140,7 +182,15 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job accidentWorkplaceApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("accidentWorkplaceApiReaderJob")
-                .start(accidentWorkplaceApiReaderStep())
+                .start(accidentWorkplaceDeleteStep())
+                .next(accidentWorkplaceApiReaderStep())
+                .build();
+    }
+
+    @Bean
+    public Step accidentWorkplaceDeleteStep() {
+        return stepBuilderFactory.get("accidentWorkplaceDeleteStep")
+                .tasklet(accidentWorkplaceDeleteTasklet)
                 .build();
     }
 
@@ -156,7 +206,15 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job highPercentAccidentWorkplaceApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("highPercentAccidentWorkplaceApiReaderJob")
-                .start(highPercentAccidentWorkplaceApiReaderStep())
+                .start(highPercentAccidentWorkplaceDeleteStep())
+                .next(highPercentAccidentWorkplaceApiReaderStep())
+                .build();
+    }
+
+    @Bean
+    public Step highPercentAccidentWorkplaceDeleteStep() {
+        return stepBuilderFactory.get("highPercentAccidentWorkplaceDeleteStep")
+                .tasklet(highPercentAccidentWorkplaceDeleteTasklet)
                 .build();
     }
 
@@ -172,7 +230,14 @@ public class FileItemReaderJobConfig {
     @Bean
     public Job employmentInformationApiReaderJob() throws JsonProcessingException, URISyntaxException {
         return jobBuilderFactory.get("employmentInformationApiReaderJob")
-                .start(employmentInformationApiReaderStep())
+                .start(employmentInformationDeleteStep())
+                .next(employmentInformationApiReaderStep())
+                .build();
+    }
+    @Bean
+    public Step employmentInformationDeleteStep() {
+        return stepBuilderFactory.get("employmentInformationDeleteStep")
+                .tasklet(employmentInformationDeleteTasklet)
                 .build();
     }
 

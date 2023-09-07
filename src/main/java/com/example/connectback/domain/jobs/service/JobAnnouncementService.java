@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -70,6 +72,8 @@ public class JobAnnouncementService {
         MemberEntity member = memberRepository.findByEmail(email)
                 .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다"));
         Set<JobAnnouncement> jobAnnouncements = member.getWishlist();
+        List<JobAnnouncement> jobAnnouncementList = new ArrayList<>(jobAnnouncements);
+        jobAnnouncementList.sort(Comparator.comparing(JobAnnouncement::getRecruitmentPeriod));
 
         return jobAnnouncements.stream().map(JobAnnouncementDto::new).map((JobAnnouncementDto item)-> {
             return item.checkAddedAnnouncement(member);

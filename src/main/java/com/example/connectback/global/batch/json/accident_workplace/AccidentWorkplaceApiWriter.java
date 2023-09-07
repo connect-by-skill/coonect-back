@@ -14,7 +14,6 @@ public class AccidentWorkplaceApiWriter implements ItemWriter<AccidentWorkplace>
 
     @Override
     public void write(List<? extends AccidentWorkplace> list) throws Exception {
-        accidentWorkplaceRepository.deleteAll();
         List<AccidentWorkplace> accidentWorkplaces = new ArrayList<>();
 
         // dto -> entity

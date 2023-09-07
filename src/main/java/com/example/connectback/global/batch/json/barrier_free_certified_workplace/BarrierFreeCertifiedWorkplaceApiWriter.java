@@ -13,7 +13,6 @@ public class BarrierFreeCertifiedWorkplaceApiWriter implements ItemWriter<Barrie
     private final BarrierFreeCertifiedWorkplaceRepository barrierFreeCertifiedWorkplaceRepository;
     @Override
     public void write(List<? extends BarrierFreeCertifiedWorkplace> list) throws Exception {
-        barrierFreeCertifiedWorkplaceRepository.deleteAll();
         List<BarrierFreeCertifiedWorkplace> barrierFreeCertifiedWorkplaces = new ArrayList<>();
 
         // dto -> entity

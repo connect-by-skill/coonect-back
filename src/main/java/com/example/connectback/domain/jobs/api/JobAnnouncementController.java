@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/announcement")
@@ -59,22 +60,21 @@ public class JobAnnouncementController {
         return ResponseEntity.ok().body(response);
     }
 
-    /*
-    * 요구학력, 입사형태, 기업형태, 요구경력 유무, 사업장 주소에 대한 조건으로 검색할 수 있다.
-    * */
+    // 고용형태, 회사 규모, 경력 요구, 주소, keyword로 검색하고 id와 recruitmentPeriod 둘 중 하나를 기준으로 정렬할 수 있다.
     @GetMapping("/search")
-    public ResponseEntity<?> getDynamicJobAnnouncements(@RequestHeader("Authorization")String token, Pageable pageable,
-                                                        @RequestParam String requiredEducation,
-                                                        @RequestParam String entryForm,
-                                                        @RequestParam String companyType,
-                                                        @RequestParam Boolean requiredExperienceExists,
-                                                        @RequestParam String businessAddress) {
+    public ResponseEntity<?> getDynamicJobAnnouncementsWithKeyword(@RequestHeader("Authorization")String token, Pageable pageable,
+                                                        @RequestParam(required = false) String typeOfEmployment,
+                                                        @RequestParam(required = false) String companyType,
+                                                        @RequestParam(required = false) Boolean requiredExperienceExists,
+                                                        @RequestParam(required = false) String businessAddress,
+                                                        @RequestParam(required = false) String keyword) {
         String accessToken = token.substring(7);
-        List<JobAnnouncementDto> response = (List<JobAnnouncementDto>) jobAnnouncementRepository.searchJobAnnouncements(requiredEducation,
-                entryForm,
+        List<JobAnnouncementDto> response = jobAnnouncementRepository.searchJobAnnouncementsWithKeyword(pageable,
+                typeOfEmployment,
                 companyType,
                 requiredExperienceExists,
-                businessAddress).stream().map(JobAnnouncementDto::new);
+                businessAddress,
+                keyword).stream().map(JobAnnouncementDto::new).collect(Collectors.toList());
 
         return ResponseEntity.ok().body(response);
     }
