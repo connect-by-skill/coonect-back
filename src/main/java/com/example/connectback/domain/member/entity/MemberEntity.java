@@ -2,6 +2,7 @@ package com.example.connectback.domain.member.entity;
 
 
 import com.example.connectback.domain.jobs.entity.JobAnnouncement;
+import com.example.connectback.domain.resume.entity.ResumeEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,7 +28,7 @@ public class MemberEntity {
     private int age;
 
     @NonNull
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NonNull
@@ -35,11 +36,11 @@ public class MemberEntity {
     private String encryptedPwd;
 
     @NonNull
-    @Column(nullable = false,length = 100)
+    @Column(nullable = false,length = 200)
     private String addressInfo;
 
     @NonNull
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String addressDetails;
 
     @NonNull
@@ -54,6 +55,9 @@ public class MemberEntity {
             inverseJoinColumns = @JoinColumn(name = "job_announcement_id")
     )
     private Set<JobAnnouncement> wishlist = new HashSet<>();
+
+    @OneToOne(mappedBy = "member")
+    private ResumeEntity resume;
 
     @Builder
     public MemberEntity(@NonNull String username, @NonNull int age, @NonNull String email, @NonNull String encryptedPwd, @NonNull String addressInfo, @NonNull String addressDetails, @NonNull Disability disabilityType) {
@@ -74,5 +78,9 @@ public class MemberEntity {
     public void removeFromWishlist(JobAnnouncement jobAnnouncement) {
         wishlist.remove(jobAnnouncement);
         jobAnnouncement.getMembers().remove(this);
+    }
+
+    public void writeResume(ResumeEntity resume){
+        resume.setMember(this);
     }
 }

@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -96,9 +97,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         body.put("role",userDetails.getDisabilityType().toString());
         body.put("expirationTime", env.getProperty("token.access_expiration_time"));
 
-////        redis에 refresh token 저장
-//        ValueOperations<String, Object> vop = redisTemplate.opsForValue();
-//        vop.set(userEmail,refreshToken);
+//        redis에 refresh token 저장
+        ValueOperations<String, Object> vop = redisTemplate.opsForValue();
+        vop.set(userEmail,refreshToken);
 
         new ObjectMapper().writeValue(response.getOutputStream(),body);
     }

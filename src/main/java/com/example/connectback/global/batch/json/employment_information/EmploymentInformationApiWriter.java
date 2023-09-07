@@ -13,6 +13,7 @@ public class EmploymentInformationApiWriter implements ItemWriter<EmploymentInfo
     private final EmploymentInformationRepository employmentInformationRepository;
     @Override
     public void write(List<? extends EmploymentInformation> list) throws Exception {
+        employmentInformationRepository.deleteAll();
         List<EmploymentInformation> employmentInformations = new ArrayList<>();
 
         // dto -> entity

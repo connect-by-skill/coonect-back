@@ -53,6 +53,15 @@ dependencies {
     // queryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0'
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0'
+
+    // encrypt config
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
+
+    // encrypt algorithm
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+
+    // java mail sender
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.13'
 }
 
 tasks.named('test') {

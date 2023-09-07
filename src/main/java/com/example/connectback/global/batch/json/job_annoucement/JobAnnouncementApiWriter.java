@@ -6,6 +6,7 @@ import com.example.connectback.domain.jobs.repository.JobAnnouncementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +14,13 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class JobAnnouncementApiWriter implements ItemWriter<JobAnnouncement> {
-    private final JobAnnouncementRepository jobAnnoucementRepository;
+    private final JobAnnouncementRepository jobAnnouncementRepository;
 
     @Override
+    @Transactional
     public void write(List<? extends JobAnnouncement> list) throws Exception {
+        jobAnnouncementRepository.deleteAll();
+
         List<JobAnnouncement> jobAnnoucements = new ArrayList<>();
 
         // dto -> entity
@@ -24,6 +28,6 @@ public class JobAnnouncementApiWriter implements ItemWriter<JobAnnouncement> {
             jobAnnoucements.add(jobAnnoucement);
         });
 
-        jobAnnoucementRepository.saveAll(jobAnnoucements);
+        jobAnnouncementRepository.saveAll(jobAnnoucements);
     }
 }

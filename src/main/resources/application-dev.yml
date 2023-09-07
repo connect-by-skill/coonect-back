@@ -19,6 +19,21 @@ spring:
     port: 6379
     host: 127.0.0.1
     password: ''
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ENC(cLCKOqMe9ppsanYddNRTcXN30dpRGKk42YUMZh3jmXGTZDyMws/OyJSxv1i95nye)
+    password: ENC(YCIUBoeyZYXbyS551Xy8JAhKYMtcTe4F1+LkabBbz0o=)
+    properties:
+      debug: true
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: smtp.naver.com
+          starttls:
+            enable: true
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -31,3 +46,7 @@ token:
   #  1day
   refresh_expiration_time: 8640000000
   secret: user_token
+
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor

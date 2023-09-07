@@ -89,4 +89,8 @@ public class JobAnnouncementService {
         return announcementDtos;
     }
 
+    public void deleteAllAnnouncements(){
+        jobAnnouncementRepository.deleteAll();
+    }
+
 }

@@ -23,16 +23,22 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.net.URISyntaxException;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableScheduling
 public class FileItemReaderJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final ApiReader apiReader;
+
+    // job 재실행을 위한 도구
+    private final BatchJobLauncher batchJobLauncher;
 
     // 발전소 정보
     private final JobAnnouncementApiWriter jobAnnouncementApiWriter;
@@ -54,6 +60,18 @@ public class FileItemReaderJobConfig {
 
     // 장애인 고용정보
     private final EmploymentInformationApiWriter employmentInformationApiWriter;
+
+    @Scheduled(fixedRate = 3888000000L) // 약 45일(3,888,000,000 밀리초)마다 실행
+    public void scheduleJob() throws Exception {
+        // 배치 잡을 스케줄링하기 위한 메서드
+        batchJobLauncher.run(jobAnnouncementApiFileItemReaderJob());
+        batchJobLauncher.run(healthCenterApiReaderJob());
+        batchJobLauncher.run(riskAssessmentCertifiedWorkplaceApiReaderJob());
+        batchJobLauncher.run(barrierFreeCertifiedWorkplaceApiReaderJob());
+        batchJobLauncher.run(accidentWorkplaceApiReaderJob());
+        batchJobLauncher.run(highPercentAccidentWorkplaceApiReaderJob());
+        batchJobLauncher.run(employmentInformationApiReaderJob());
+    }
 
     @Bean
     public Job jobAnnouncementApiFileItemReaderJob() throws URISyntaxException, JsonProcessingException {
